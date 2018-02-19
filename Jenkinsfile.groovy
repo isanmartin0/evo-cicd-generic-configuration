@@ -67,7 +67,7 @@ def runGenericJenkinsfile() {
             pom = readMavenPom()
             projectURL = pom.url
             artifactId = pom.artifactId
-            groupId = getProjectGroupId()
+            groupId = utils.getProjectGroupId(pom.groupId, pom.parent.groupId, false)
 
             try {
                 def parallelConfigurationProject = utils.getParallelConfigurationProjectURL(projectURL, artifactId)
