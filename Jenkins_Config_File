@@ -5,7 +5,7 @@ def jenkinsFile
 def gitDefaultProjectConfigurationPath='https://github.com/evobanco/evo-cicd-generic-configuration'
 def gitDefaultProjectConfigurationJenkinsFile='Jenkinsfile'
 def gitDefaultProjectConfigurationBranch='master'
-def gitDefaultProjectConfigurationCredentials='' --credentials for the generic configuration project
+def gitDefaultProjectConfigurationCredentials='4b18ea85-c50b-40f4-9a81-e89e44e20178' //credentials for the generic configuration project
 def gitDefaultProjectConfigurationJenkinsNode=''
 
 
