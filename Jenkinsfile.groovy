@@ -25,7 +25,7 @@ def runGenericJenkinsfile() {
 
     //Parallet project configuration (PPC) properties
     def branchPPC = 'master'
-    def credentialsIdPPC = '' //credentials of the parallel configuration project
+    def credentialsIdPPC = '4b18ea85-c50b-40f4-9a81-e89e44e20178' //credentials of the parallel configuration project
     def relativeTargetDirPPC = '/tmp/configs/PPC/'
     def isPPCJenkinsFile = false
     def isPPCJenkinsYaml = false
@@ -42,10 +42,10 @@ def runGenericJenkinsfile() {
     def jenknsFilePipelinePPC
 
     //Generic project configuration properties
-    def gitDefaultProjectConfigurationPath='https://github.com/evobanco/evo-cicd-generic-configuration'
+    def gitDefaultProjectConfigurationPath='https://github.com/isanmartin0/evo-cicd-generic-configuration'
     def relativeTargetDirGenericPGC = '/tmp/configs/generic/'
     def branchGenericPGC = 'master'
-    def credentialsIdGenericPGC = '' //credentials of the generic configuration project
+    def credentialsIdGenericPGC = '4b18ea85-c50b-40f4-9a81-e89e44e20178' //credentials of the generic configuration project
     def jenkinsYamlGenericPath = relativeTargetDirGenericPGC + 'Jenkins.yml'
     def openshiftTemplateGenericPath = relativeTargetDirGenericPGC + 'kube/template.yaml'
     def isGenericJenkinsYaml = false
