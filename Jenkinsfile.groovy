@@ -50,6 +50,10 @@ def runGenericJenkinsfile() {
     def openshiftTemplateGenericPath = relativeTargetDirGenericPGC + 'kube/template.yaml'
     def isGenericJenkinsYaml = false
 
+    def pom
+    def projectURL
+    def artifactId
+    def groupId
 
     echo "BEGIN GENERIC CONFIGURATION PROJECT (PGC)"
 
@@ -60,9 +64,10 @@ def runGenericJenkinsfile() {
 
         stage('Detect Parallel project configuration (PPC)') {
 
-            def pom = readMavenPom()
-            def projectURL = pom.url
-            def artifactId = pom.artifactId
+            pom = readMavenPom()
+            projectURL = pom.url
+            artifactId = pom.artifactId
+            groupId = getProjectGroupId()
 
             try {
                 def parallelConfigurationProject = utils.getParallelConfigurationProjectURL(projectURL, artifactId)
@@ -154,10 +159,6 @@ def runGenericJenkinsfile() {
             }
         }
 
-        //Set to force the execution. Remove after tests
-        isPPCJenkinsFile = false
-        isPPCJenkinsYaml = false
-        isPPCOpenshiftTemplate = true
 
 
         if (isPPCJenkinsFile) {
@@ -322,7 +323,15 @@ def runGenericJenkinsfile() {
                 if (branchType in params.testing.predeploy.sonarQube) {
                     stage('SonarQube') {
                         echo "Running SonarQube..."
-                        sh "${mavenCmd} sonar:sonar -Dsonar.host.url=${sonarQube} ${mavenProfile}"
+
+                        def sonar_project_key = groupId + ":" + artifactId + "-" + branchNameHY
+                        def sonar_project_name = artifactId + "-" + branchNameHY
+
+                        echo "sonar_project_key: ${sonar_project_key}"
+                        echo "sonar_project_name: ${sonar_project_name}"
+
+                        sh "${mavenCmd} sonar:sonar -Dsonar.host.url=${sonarQube} ${mavenProfile} -Dsonar.projectKey=${sonar_project_key} -Dsonar.projectName=${sonar_project_name}"
+
                     }
                 } else {
                     echo "Skipping Running SonarQube..."
