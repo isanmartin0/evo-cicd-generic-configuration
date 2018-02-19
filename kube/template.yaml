@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ${PROJECT}
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/image.dockerRepositoryCheck: 2017-06-27T21:31:05Z
+    generation: 1
+    labels:
+      app: ${PROJECT}
+    name: ${PROJECT}
+  spec: {}
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ${PROJECT}
+    name: ${PROJECT}
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${PROJECT}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/jucaf/ews-bin-deploy.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        env:
+        - name: WAR_FILE_URL
+          value: ${WAR_FILE_URL}
+        - name: ARTIFACTORY_TOKEN
+          value: ${ARTIFACTORY_TOKEN}
+        from:
+          kind: ImageStreamTag
+          name: jws-java-appdynamics:1.0
+          namespace: openshift
+      type: Source
+    triggers:
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: ${PROJECT}
+    name: ${PROJECT}
+  spec:
+    replicas: 1
+    selector:
+      app: ${PROJECT}
+      deploymentconfig: ${PROJECT}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: ${PROJECT}
+          deploymentconfig: ${PROJECT}
+      spec:
+        containers:
+        - image: "${DOCKER_REGISTRY}:5000/${PROJECT}-${BRANCH_NAME_HY}/${PROJECT}:latest"
+          imagePullPolicy: Always
+          name: ${PROJECT}
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: ${PROJECT}
+    name: ${PROJECT}
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: ${PROJECT}
+      deploymentconfig: ${PROJECT}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    name: ${PROJECT}
+  spec:
+    host: "${PROJECT}-${BRANCH_NAME_HY}.svcs${envLabel}.grupoevo.corp"
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: ${PROJECT}
+      weight: 100
+    wildcardPolicy: None
+parameters:
+- description: "Project name"
+  name: "PROJECT"
+  value: ""
+- description: "Branch name"
+  name: "BRANCH_NAME"
+  value: "feature/tem-202"
+- description: "Branch name hyphenated"
+  name: "BRANCH_NAME_HY"
+  value: "feature-tem-202"
+- description: "Docker Registry"
+  name: "DOCKER_REGISTRY"
+  value: ""
+- description: "Artifactory Token"
+  name: "ARTIFACTORY_TOKEN"
+  value: ""
+- description: "WAR_FILE_URL"
+  name: "WAR_FILE_URL"
+  value: ""
+- description: "EnvLabel"
+  name: "envLabel"
+value: ""

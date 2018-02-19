@@ -1,0 +1,21 @@
+#!/usr/bin/env groovy
+@Library('msa-cicd-jenkins-shared-libs')_
+
+def jenkinsFile
+def gitDefaultProjectConfigurationPath='https://github.com/evobanco/evo-cicd-generic-configuration'
+def gitDefaultProjectConfigurationJenkinsFile='Jenkinsfile'
+def gitDefaultProjectConfigurationBranch='master'
+def gitDefaultProjectConfigurationCredentials='' --credentials for the generic configuration project
+def gitDefaultProjectConfigurationJenkinsNode=''
+
+
+stage('Generic Jenkinsfile (PGC) load') {
+  echo "Loading Jenkins file (PGC)"
+  jenkinsFile = fileLoader.fromGit(gitDefaultProjectConfigurationJenkinsFile,
+                                   gitDefaultProjectConfigurationPath,
+                                   gitDefaultProjectConfigurationBranch,
+                                   gitDefaultProjectConfigurationCredentials,
+                                   gitDefaultProjectConfigurationJenkinsNode)
+
+  jenkinsFile.runGenericJenkinsfile()
+}
