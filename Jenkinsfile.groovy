@@ -256,7 +256,7 @@ def runGenericJenkinsfile() {
                 if (!isValidVersion) {
                     //Sufix -SNAPSHOT is required for develop and feature branch types and is forbidden for release,hotfix and master branch types
                     currentBuild.result = 'FAILURE'
-                    throw new hudson.AbortException('Version of artifact in pom is not allowed to this type of branch')
+                    throw new hudson.AbortException('Version of artifact in pom is not allowed for this type of branch')
                 }
 
             }
