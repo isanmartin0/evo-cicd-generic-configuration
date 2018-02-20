@@ -89,7 +89,7 @@ objects:
           deploymentconfig: ${PROJECT}
       spec:
         containers:
-        - image: "${DOCKER_REGISTRY}:5000/${PROJECT}-${BRANCH_NAME_HY}/${PROJECT}:latest"
+        - image: "${DOCKER_REGISTRY}:5000/${PROJECT}-${BRANCH_NAME_HY}xx/${PROJECT}:latest"
           imagePullPolicy: Always
           name: ${PROJECT}
           ports:
