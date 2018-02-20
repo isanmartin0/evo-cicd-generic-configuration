@@ -246,7 +246,7 @@ def runGenericJenkinsfile() {
                 echo "We are on branch ${branchName}"
                 branchType = utils.getBranchType(branchName)
                 echo "This branch is a ${branchType} branch"
-                branchNameHY = branchName.replace("/", "-").replace(".", "-")
+                branchNameHY = branchName.replace("/", "-").replace(".", "-").replace("_","-")
                 echo "Branch name processed: ${branchName}"
 
                 artifactoryRepoURL = (branchType == 'master' || branchType == 'release')  ? artifactoryReleasesURL : artifactorySnapshotsURL
