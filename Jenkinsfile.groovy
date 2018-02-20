@@ -251,6 +251,13 @@ def runGenericJenkinsfile() {
 
                 artifactoryRepoURL = (branchType == 'master' || branchType == 'release')  ? artifactoryReleasesURL : artifactorySnapshotsURL
 
+                def isValidVersion = utils.isValidBranchPomVersion(pom.version, branchType)
+
+                if (!isValidVersion) {
+                    //Sufix -SNAPSHOT is required for develop and feature branch types and is forbidden for release,hotfix and master branch types
+                    currentBuild.result = 'ABORTED'
+                    throw new hudson.AbortException('Version of artifact in pom is not allowed to this type of branch')
+                }
 
             }
 
