@@ -24,10 +24,12 @@ testing:
       - feature
       - develop
       - release
+      - hotfix
     sonarQube:
       - feature
       - develop
       - release
+      - hotfix
     checkstyle:
       # - feature
       # - develop
@@ -42,6 +44,7 @@ testing:
       - release
     performanceTesting:
       - release
+      - hotfix
     acceptanceTesting:
       - develop
       - release
