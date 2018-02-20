@@ -249,7 +249,7 @@ def runGenericJenkinsfile() {
                 branchNameHY = branchName.replace("/", "-").replace(".", "-").replace("_","-")
                 echo "Branch name processed: ${branchName}"
 
-                artifactoryRepoURL = (branchType == 'master' || branchType == 'release')  ? artifactoryReleasesURL : artifactorySnapshotsURL
+                artifactoryRepoURL = (branchType == 'master' || branchType == 'release' || branchType == 'hotfix')  ? artifactoryReleasesURL : artifactorySnapshotsURL
 
                 def isValidVersion = utils.isValidBranchPomVersion(pom.version, branchType)
 
