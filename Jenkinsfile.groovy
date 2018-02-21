@@ -195,6 +195,8 @@ def runGenericJenkinsfile() {
 
                     assert params.openshift.templatePath?.trim()
 
+                    echo "params.openshift.templatePath: ${params.openshift.templatePath}"
+
                 } else {
                     //The generic pipeline will use generic Jenkins.yml or generic Openshift template
                     //We need load this elements
