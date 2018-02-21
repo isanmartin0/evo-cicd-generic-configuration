@@ -185,6 +185,15 @@ def runGenericJenkinsfile() {
                 if (isPPCJenkinsYaml && isPPCOpenshiftTemplate) {
                     //The generic pipeline will use Jenkins.yml and template of the parallel project configuration
 
+                    //Take parameters of the parallel project configuration (PPC)
+                    params = readYaml  file: jenkinsYamlPathPPC
+                    echo "Using Jenkins.yml from parallel project configuration (PPC)"
+
+                    //The template is provided by parallel project configuration (PPC)
+                    params.openshift.templatePath = relativeTargetDirPPC + params.openshift.templatePath
+                    echo "Template provided by parallel project configuration (PPC)"
+
+                    assert params.openshift.templatePath?.trim()
 
                 } else {
                     //The generic pipeline will use generic Jenkins.yml or generic Openshift template
@@ -216,9 +225,6 @@ def runGenericJenkinsfile() {
                         echo "Using Jenkins.yml from generic project"
                     }
 
-                    assert params.openshift.templatePath?.trim()
-
-
                     if (isPPCOpenshiftTemplate) {
                         //The template is provided by parallel project configuration (PPC)
                         params.openshift.templatePath = relativeTargetDirPPC + params.openshift.templatePath
@@ -228,6 +234,8 @@ def runGenericJenkinsfile() {
                         params.openshift.templatePath = relativeTargetDirGenericPGC + params.openshift.templatePath
                         echo "Template provided by generic configuration project"
                     }
+
+                    assert params.openshift.templatePath?.trim()
 
                     echo "params.openshift.templatePath: ${params.openshift.templatePath}"
                 }
