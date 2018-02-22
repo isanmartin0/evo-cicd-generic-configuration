@@ -278,6 +278,8 @@ def runGenericJenkinsfile() {
                         envLabel="dev"
                         if (params.maven.profileFeature) {
                             mavenProfile = "-P${params.maven.profileFeature}"
+                        }
+                        if (params.spring.profileFeature) {
                             springProfile = params.spring.profileFeature
                         }
                         break
@@ -286,10 +288,9 @@ def runGenericJenkinsfile() {
                         envLabel="dev"
                         if (params.maven.profileDevelop) {
                             mavenProfile = "-P${params.maven.profileDevelop}"
+                        }
+                        if (params.spring.profileDevelop) {
                             springProfile = params.spring.profileDevelop
-
-                            echo "Maven profile selected 1: ${mavenProfile}"
-                            echo "Spring profile selected 1: ${springProfile}"
                         }
                         break
                     case 'release':
@@ -297,6 +298,8 @@ def runGenericJenkinsfile() {
                         envLabel="uat"
                         if (params.maven.profileRelease) {
                             mavenProfile = "-P${params.maven.profileRelease}"
+                        }
+                        if (params.spring.profileRelease) {
                             springProfile = params.spring.profileRelease
                         }
                         break
@@ -305,6 +308,8 @@ def runGenericJenkinsfile() {
                         envLabel="pro"
                         if (params.maven.profileMaster) {
                             mavenProfile = "-P${params.maven.profileMaster}"
+                        }
+                        if (params.spring.profileMaster) {
                             springProfile = params.spring.profileMaster
                         }
                         break
@@ -313,6 +318,8 @@ def runGenericJenkinsfile() {
                         envLabel="uat"
                         if (params.maven.profileHotfix) {
                             mavenProfile = "-P${params.maven.profileHotfix}"
+                        }
+                        if (params.spring.profileHotfix) {
                             springProfile = params.spring.profileHotfix
                         }
                         break
@@ -424,9 +431,6 @@ def runGenericJenkinsfile() {
                         branchHY = branchNameHY
                         branch_type = branchType
                     }
-
-                    echo "Maven profile selected: ${mavenProfile}"
-                    echo "Spring profile selected: ${springProfile}"
 
                     openshiftEnvironmentVariables {
                         springProfileActive = springProfile
