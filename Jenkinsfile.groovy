@@ -393,6 +393,13 @@ def runGenericJenkinsfile() {
                     dockerRegistry = registry
                 }
 
+
+                openshiftEnvironmentVariables {
+                    springProfileActive = springProfile
+                    branchHY = branchNameHY
+                    branch_type = branchType
+                }
+
                 openshiftBuildProject {
                     artCredential = artifactoryCredential
                     snapshotRepoUrl = artifactorySnapshotsURL
@@ -405,11 +412,6 @@ def runGenericJenkinsfile() {
                     branch_type = branchType
                 }
 
-                openshiftEnvironmentVariables {
-                    springProfileActive = springProfile
-                    branchHY = branchNameHY
-                    branch_type = branchType
-                }
 
             }
         }
