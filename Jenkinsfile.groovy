@@ -386,6 +386,12 @@ def runGenericJenkinsfile() {
                     branchHY = branchNameHY
                     branch_type = branchType
                 }
+
+                openshiftEnvironmentVariables {
+                    springProfileActive = springProfile
+                    branchHY = branchNameHY
+                    branch_type = branchType
+                }
             }
         }
 
