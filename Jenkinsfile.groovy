@@ -533,10 +533,7 @@ def runGenericJenkinsfile() {
 
                 echo "Keeping last ${maxOldBuildsToKeep} builds"
 
-                properties([[
-                                    $class: 'jenkins.model.BuildDiscarderProperty',
-                                    strategy: [$class: 'LogRotator', numToKeepStr: '${maxOldBuildsToKeep}', artifactNumToKeepStr: '${maxOldBuildsToKeep}']
-                            ]])
+                properties([[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: "${maxOldBuildsToKeep}"]]]);
 
             } else {
                 echo "Not removing old builds."
