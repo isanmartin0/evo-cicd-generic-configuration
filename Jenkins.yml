@@ -57,3 +57,5 @@ notifications:
     - master
     - hotfix
 type: slack
+
+maxOldBuildsToKeep: 0

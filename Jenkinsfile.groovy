@@ -55,6 +55,8 @@ def runGenericJenkinsfile() {
     def artifactId
     def groupId
 
+    int maxOldBuildsToKeep = 0
+
     echo "BEGIN GENERIC CONFIGURATION PROJECT (PGC)"
 
     node('maven') {
@@ -513,6 +515,32 @@ def runGenericJenkinsfile() {
             )
         }
         */
+
+        }
+
+        stage('Remove old builds') {
+
+            echo "params.maxOldBuildsToKeep: ${params.maxOldBuildsToKeep}"
+            String maxOldBuildsToKeepParam = params.maxOldBuildsToKeep
+
+            if (maxOldBuildsToKeepParam.isInteger()) {
+                maxOldBuildsToKeep = maxOldBuildsToKeepParam as Integer
+            }
+
+            echo "maxOldBuildsToKeep: ${maxOldBuildsToKeep}"
+
+            if (maxOldBuildsToKeep > 0) {
+
+                echo "Keeping last ${maxOldBuildsToKeep} builds"
+
+                properties([[
+                                    $class: 'jenkins.model.BuildDiscarderProperty',
+                                    strategy: [$class: 'LogRotator', numToKeepStr: '${maxOldBuildsToKeep}', artifactNumToKeepStr: '${maxOldBuildsToKeep}']
+                            ]])
+
+            } else {
+                echo "Not removing old builds."
+            }
 
         }
 
