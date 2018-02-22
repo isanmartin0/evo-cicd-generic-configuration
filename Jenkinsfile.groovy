@@ -274,6 +274,7 @@ def runGenericJenkinsfile() {
             stage ('Prepare profiles') {
                 switch (branchType) {
                     case 'feature':
+                        echo "Detect feature type branch"
                         envLabel="dev"
                         if (params.maven.profileFeature) {
                             mavenProfile = "-P${params.maven.profileFeature}"
@@ -281,13 +282,18 @@ def runGenericJenkinsfile() {
                         }
                         break
                     case 'develop':
+                        echo "Detect develop type branch"
                         envLabel="dev"
                         if (params.maven.profileDevelop) {
                             mavenProfile = "-P${params.maven.profileDevelop}"
                             springProfile = params.spring.profileDevelop
+
+                            echo "Maven profile selected 1: ${mavenProfile}"
+                            echo "Spring profile selected 1: ${springProfile}"
                         }
                         break
                     case 'release':
+                        echo "Detect release type branch"
                         envLabel="uat"
                         if (params.maven.profileRelease) {
                             mavenProfile = "-P${params.maven.profileRelease}"
@@ -295,6 +301,7 @@ def runGenericJenkinsfile() {
                         }
                         break
                     case 'master':
+                        echo "Detect master type branch"
                         envLabel="pro"
                         if (params.maven.profileMaster) {
                             mavenProfile = "-P${params.maven.profileMaster}"
@@ -302,6 +309,7 @@ def runGenericJenkinsfile() {
                         }
                         break
                     case 'hotfix':
+                        echo "Detect hotfix type branch"
                         envLabel="uat"
                         if (params.maven.profileHotfix) {
                             mavenProfile = "-P${params.maven.profileHotfix}"
