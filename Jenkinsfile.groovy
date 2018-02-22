@@ -309,6 +309,9 @@ def runGenericJenkinsfile() {
                         }
                         break
                 }
+
+                echo "Maven profile selected: ${mavenProfile}"
+                echo "Spring profile selected: ${springProfile}"
             }
 
 
@@ -414,6 +417,8 @@ def runGenericJenkinsfile() {
                         branch_type = branchType
                     }
 
+                    echo "Maven profile selected: ${mavenProfile}"
+                    echo "Spring profile selected: ${springProfile}"
 
                     openshiftEnvironmentVariables {
                         springProfileActive = springProfile
