@@ -59,3 +59,4 @@ notifications:
 type: slack
 
 maxOldBuildsToKeep: 10
+daysOldBuildsToKeep: 0
