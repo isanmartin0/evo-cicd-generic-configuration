@@ -65,6 +65,8 @@ def runGenericJenkinsfile() {
         //sleep 10
         checkout scm
 
+        echo "scm.credentialsId: ${scm.userRemoteConfigs.credentialsId}"
+
         stage('Detect Parallel project configuration (PPC)') {
 
             pom = readMavenPom()
@@ -181,7 +183,7 @@ def runGenericJenkinsfile() {
 
 
         } else {
-            echo "Executing Jenkinsfile from Generic Configuration Project (PPC)"
+            echo "Executing Jenkinsfile from Generic Configuration Project (PGC)"
 
             stage('Load pipeline configuration') {
 
