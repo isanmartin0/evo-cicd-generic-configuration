@@ -25,7 +25,8 @@ def runGenericJenkinsfile() {
 
     //Parallet project configuration (PPC) properties
     def branchPPC = 'master'
-    def credentialsIdPPC = '4b18ea85-c50b-40f4-9a81-e89e44e20178' //credentials of the parallel configuration project
+    def credentialsIdPPCDefault = '4b18ea85-c50b-40f4-9a81-e89e44e20178' //credentials of the parallel configuration project
+    def credentialsIdPPC
     def relativeTargetDirPPC = '/tmp/configs/PPC/'
     def isPPCJenkinsFile = false
     def isPPCJenkinsYaml = false
@@ -65,7 +66,15 @@ def runGenericJenkinsfile() {
         //sleep 10
         checkout scm
 
-        echo "scm.credentialsId: ${scm.userRemoteConfigs.credentialsId}"
+        credentialsIdPPC = scm.userRemoteConfigs.credentialsId
+        if (credentialsIdPPC == null || "".equals(credentialsIdPPC)) {
+            echo "Using credentialsIdPPCDefault value for access to Parallel Project Configuration (PPC)"
+            credentialsIdPPC = credentialsIdPPCDefault
+        } else {
+            echo "Using credentialsId from multibranch source configuration"
+        }
+
+        echo "credentialsIdPPC: ${credentialsIdPPC}"
 
         stage('Detect Parallel project configuration (PPC)') {
 
@@ -523,11 +532,11 @@ def runGenericJenkinsfile() {
 
         stage('Remove old builds') {
 
-            echo "params.maxOldBuildsToKeep: ${params.maxOldBuildsToKeep}"
-            echo "params.daysOldBuildsToKeep: ${params.daysOldBuildsToKeep}"
+            echo "params.maxOldBuildsToKeep: ${params.jenkins.maxOldBuildsToKeep}"
+            echo "params.daysOldBuildsToKeep: ${params.jenkins.daysOldBuildsToKeep}"
 
-            String maxOldBuildsToKeepParam = params.maxOldBuildsToKeep
-            String daysOldBuildsToKeepParam = params.daysOldBuildsToKeep
+            String maxOldBuildsToKeepParam = params.jenkins.maxOldBuildsToKeep
+            String daysOldBuildsToKeepParam = params.jenkins.daysOldBuildsToKeep
 
             if (maxOldBuildsToKeepParam != null && maxOldBuildsToKeepParam.isInteger()) {
                 maxOldBuildsToKeep = maxOldBuildsToKeepParam as Integer
