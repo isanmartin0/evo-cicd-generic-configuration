@@ -66,12 +66,18 @@ def runGenericJenkinsfile() {
         //sleep 10
         checkout scm
 
-        credentialsIdPPC = scm.userRemoteConfigs.credentialsId
-        if (credentialsIdPPC == null || "".equals(credentialsIdPPC)) {
+
+        try {
+            def credentialsIdPPCArray = scm.userRemoteConfigs.credentialsId
+            credentialsIdPPC = credentialsIdPPCArray.first()
             echo "Using credentialsIdPPCDefault value for access to Parallel Project Configuration (PPC)"
+
+        } catch (exc) {
+            echo 'There is an error on retrieving credentialsId of multibranch configuration'
+            def exc_message = exc.message
+            echo "${exc_message}"
+
             credentialsIdPPC = credentialsIdPPCDefault
-        } else {
-            echo "Using credentialsId from multibranch source configuration"
         }
 
         echo "credentialsIdPPC: ${credentialsIdPPC}"
