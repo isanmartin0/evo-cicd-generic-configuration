@@ -527,11 +527,11 @@ def runGenericJenkinsfile() {
             String maxOldBuildsToKeepParam = params.maxOldBuildsToKeep
             String daysOldBuildsToKeepParam = params.daysOldBuildsToKeep
 
-            if (maxOldBuildsToKeepParam.isInteger()) {
+            if (maxOldBuildsToKeepParam != null && maxOldBuildsToKeepParam.isInteger()) {
                 maxOldBuildsToKeep = maxOldBuildsToKeepParam as Integer
             }
 
-            if (daysOldBuildsToKeepParam.isInteger()) {
+            if (daysOldBuildsToKeepParam != null && daysOldBuildsToKeepParam.isInteger()) {
                 daysOldBuildsToKeep = daysOldBuildsToKeepParam as Integer
             }
 
