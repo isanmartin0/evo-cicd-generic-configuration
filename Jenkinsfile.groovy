@@ -1,5 +1,6 @@
 #!/usr/bin/groovy
 import com.evobanco.Utils
+import com.evobanco.Constants
 
 def runGenericJenkinsfile() {
 
@@ -396,6 +397,26 @@ def runGenericJenkinsfile() {
                     echo "Deploying artifact to Artifactory..."
                     sh "${mavenCmd} deploy -DskipTests=true -Dcheckstyle.skip=true ${mavenProfile}"
                 }
+            } else {
+                // Is the master branch. Check the existence of artifact on Artifactory
+
+                stage('Check release version on Artifactory') {
+                    def artifactoryResponseCode = checkArtifactoryReleaseVersion {
+                        artCredential = artifactoryCredential
+                        repoUrl = artifactoryRepoURL
+                    }
+
+                    echo "Artifactory response status code: ${artifactoryResponseCode}"
+
+                    if (artifactoryResponseCode != null && Constants.HTTP_STATUS_CODE_OK.equals(artifactoryResponseCode)) {
+                        echo "Artifact is avalaible for the pipeline on Artifactory"
+                    } else {
+                        currentBuild.result = 'FAILURE'
+                        throw new hudson.AbortException('The artifact on Artifactory is not avalaible for the pipeline')
+                    }
+
+                }
+
             }
 
             stage('OpenShift Build') {
