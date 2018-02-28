@@ -440,6 +440,8 @@ def runGenericJenkinsfile() {
                         branchHY = branchNameHY
                         branch_type = branchType
                     }
+
+                    sleep(10)
                 }
 
                 openshiftBuildProject {
