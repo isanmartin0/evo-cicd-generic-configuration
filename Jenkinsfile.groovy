@@ -434,11 +434,12 @@ def runGenericJenkinsfile() {
                     dockerRegistry = registry
                 }
 
-
-                openshiftEnvironmentVariables {
-                    springProfileActive = springProfile
-                    branchHY = branchNameHY
-                    branch_type = branchType
+                retry(10) {
+                    openshiftEnvironmentVariables {
+                        springProfileActive = springProfile
+                        branchHY = branchNameHY
+                        branch_type = branchType
+                    }
                 }
 
                 openshiftBuildProject {
