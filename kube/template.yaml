@@ -95,8 +95,15 @@ objects:
           ports:
           - containerPort: 8080
             protocol: TCP
-          resources: {}
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1000Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
           terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
@@ -146,6 +153,25 @@ objects:
       name: ${PROJECT}
       weight: 100
     wildcardPolicy: None
+- apiVersion: extensions/v1beta1
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: ${PROJECT}
+    name: ${PROJECT}
+  spec:
+    scaleRef:
+      kind: DeploymentConfig
+      name: ${PROJECT}
+      apiVersion: v1
+      subresource: scale
+    minReplicas: ${MIN_POD_REPLICAS}
+    maxReplicas: ${MAX_POD_REPLICAS}
+    cpuUtilization:
+      targetPercentage: 80
 parameters:
 - description: "Project name"
   name: "PROJECT"
@@ -173,4 +199,10 @@ parameters:
   value: ""
 - description: "Host Name"
   name: "HOST_NAME"
+  value: ""
+- description: "Minimum number of replicas of pods"
+  name: "MIN_POD_REPLICAS"
+  value: ""
+- description: "Maximum number of replicas of pods"
+  name: "MAX_POD_REPLICAS"
   value: ""
