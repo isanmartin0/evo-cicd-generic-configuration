@@ -138,7 +138,7 @@ objects:
       openshift.io/host.generated: "true"
     name: ${PROJECT}
   spec:
-    host: "${PROJECT}-${BRANCH_NAME_HY}.svcs${envLabel}.grupoevo.corp"
+    host: "${PROJECT}${HOST_NAME}"
     port:
       targetPort: 8080-tcp
     to:
@@ -170,4 +170,7 @@ parameters:
   value: ""
 - description: "EnvLabel"
   name: "envLabel"
+  value: ""
+- description: "Host Name"
+  name: "HOST_NAME"
   value: ""
