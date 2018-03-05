@@ -60,6 +60,17 @@ def runGenericJenkinsfile() {
     int maxOldBuildsToKeep = 0
     int daysOldBuildsToKeep = 0
 
+    //Taurus parameters
+    def taurus_test_base_path = 'src/test/taurus'
+    def acceptance_test_path = '/acceptance_test/'
+    def performance_test_path = '/performance_test/'
+    def smoke_test_path = '/smoke_test/'
+    def security_test_path = '/security_test/'
+
+
+    def openshift_route_hostname = ''
+    def openshift_route_hostname_with_protocol = ''
+
     echo "BEGIN GENERIC CONFIGURATION PROJECT (PGC)"
 
     node('maven') {
@@ -441,7 +452,7 @@ def runGenericJenkinsfile() {
                         branch_type = branchType
                     }
 
-                    sleep(10)
+                    sleep(10)k
                 }
 
                 openshiftBuildProject {
@@ -479,13 +490,18 @@ def runGenericJenkinsfile() {
                 stage('OpenShift Deploy') {
                     echo "Deploying on OpenShift..."
 
-                    openshiftDeployProject {
+                    openshift_route_hostname = openshiftDeployProject {
                         branchHY = branchNameHY
                         branch_type = branchType
                     }
 
+                    openshift_route_hostname_with_protocol = utils.getRouteHostnameWithProtocol(openshift_route_hostname, false)
+
                 }
             }
+
+            echo "Openshift route hostname: ${openshift_route_hostname}"
+            echo "Openshift route hostname (with protocol): ${openshift_route_hostname_with_protocol}"
 
             def tasks = [:]
 
@@ -493,7 +509,31 @@ def runGenericJenkinsfile() {
                 tasks["smoke"] = {
                     stage('Smoke Tests') {
                         echo "Running smoke tests..."
-                        //sh 'bzt testing/smoke.yml'
+
+                        def test_files_location = taurus_test_base_path + smoke_test_path + '**/*.yml'
+                        echo "Searching smoke tests with pattern: ${test_files_location}"
+
+                        def files = findFiles(glob: test_files_location)
+
+                        def testFilesNumber = files.length
+                        echo "Smoke test files found number: ${testFilesNumber}"
+
+                        files.eachWithIndex { file, index ->
+
+                            def isDirectory = files[index].directory
+
+                            if (!isDirectory) {
+                                echo "Executing smoke test file number #${index}: ${files[index].path}"
+
+                                echo "Setting taurus scenarios.scenario-default.default-address to ${openshift_route_hostname_with_protocol}"
+                                echo "Setting taurus modules.gatling.java-opts to ${openshift_route_hostname_with_protocol}"
+
+                                def bztScript = 'bzt -o scenarios.scenario-default.default-address=' + openshift_route_hostname_with_protocol + ' -o modules.gatling.java-opts=-Ddefault-address=' + openshift_route_hostname_with_protocol + ' ' + files[index].path  + ' -report --option=modules.console.disable=true'
+
+                                echo "Executing script ${bztScript}"
+                                sh "${bztScript}"
+                            }
+                        }
                     }
                 }
             } else {
@@ -504,7 +544,31 @@ def runGenericJenkinsfile() {
                 tasks["acceptance"] = {
                     stage('Acceptance Tests') {
                         echo "Running acceptance tests..."
-                        //sh 'bzt testing/acceptance.yml'
+
+                        def test_files_location = taurus_test_base_path + acceptance_test_path + '**/*.yml'
+                        echo "Searching acceptance tests with pattern: ${test_files_location}"
+
+                        def files = findFiles(glob: test_files_location)
+
+                        def testFilesNumber = files.length
+                        echo "Acceptance test files found number: ${testFilesNumber}"
+
+                        files.eachWithIndex { file, index ->
+
+                            def isDirectory = files[index].directory
+
+                            if (!isDirectory) {
+                                echo "Executing security test file number #${index}: ${files[index].path}"
+
+                                echo "Setting taurus scenarios.scenario-default.default-address to ${openshift_route_hostname_with_protocol}"
+                                echo "Setting taurus modules.gatling.java-opts to ${openshift_route_hostname_with_protocol}"
+
+                                def bztScript = 'bzt -o scenarios.scenario-default.default-address=' + openshift_route_hostname_with_protocol + ' -o modules.gatling.java-opts=-Ddefault-address=' + openshift_route_hostname_with_protocol + ' ' + files[index].path  + ' -report --option=modules.console.disable=true'
+
+                                echo "Executing script ${bztScript}"
+                                sh "${bztScript}"
+                            }
+                        }
                     }
                 }
             } else {
@@ -515,7 +579,32 @@ def runGenericJenkinsfile() {
                 tasks["security"] = {
                     stage('Security Tests') {
                         echo "Running security tests..."
-                        //sh 'bzt testing/security.yml'
+
+                        def test_files_location = taurus_test_base_path + security_test_path + '**/*.yml'
+                        echo "Searching security tests with pattern: ${test_files_location}"
+
+                        def files = findFiles(glob: test_files_location)
+
+                        def testFilesNumber = files.length
+                        echo "Security test files found number: ${testFilesNumber}"
+
+                        files.eachWithIndex { file, index ->
+
+                            def isDirectory = files[index].directory
+
+                            if (!isDirectory) {
+                                echo "Executing security test file number #${index}: ${files[index].path}"
+
+                                echo "Setting taurus scenarios.scenario-default.default-address to ${openshift_route_hostname_with_protocol}"
+                                echo "Setting taurus modules.gatling.java-opts to ${openshift_route_hostname_with_protocol}"
+
+                                def bztScript = 'bzt -o scenarios.scenario-default.default-address=' + openshift_route_hostname_with_protocol + ' -o modules.gatling.java-opts=-Ddefault-address=' + openshift_route_hostname_with_protocol + ' ' + files[index].path  + ' -report --option=modules.console.disable=true'
+
+                                echo "Executing script ${bztScript}"
+                                sh "${bztScript}"
+
+                            }
+                        }
                     }
                 }
             } else {
@@ -532,7 +621,32 @@ def runGenericJenkinsfile() {
                     checkout scm
                     stage('Performance Tests') {
                         echo "Running performance tests..."
-                        //sh 'bzt testing/performance.yml'
+
+                        def test_files_location = taurus_test_base_path + performance_test_path + '**/*.yml'
+                        echo "Searching performance tests with pattern: ${test_files_location}"
+
+                        def files = findFiles(glob: test_files_location)
+
+                        def testFilesNumber = files.length
+                        echo "Performance test files found number: ${testFilesNumber}"
+
+                        files.eachWithIndex { file, index ->
+
+                            def isDirectory = files[index].directory
+
+                            if (!isDirectory) {
+                                echo "Executing performance test file number #${index}: ${files[index].path}"
+
+                                echo "Setting taurus scenarios.scenario-default.default-address to ${openshift_route_hostname_with_protocol}"
+                                echo "Setting taurus modules.gatling.java-opts to ${openshift_route_hostname_with_protocol}"
+
+                                def bztScript = 'bzt -o scenarios.scenario-default.default-address=' + openshift_route_hostname_with_protocol + ' -o modules.gatling.java-opts=-Ddefault-address=' + openshift_route_hostname_with_protocol + ' ' + files[index].path  + ' -report --option=modules.console.disable=true'
+
+                                echo "Executing script ${bztScript}"
+                                sh "${bztScript}"
+                            }
+
+                        }
                     }
                 }
             } else {
