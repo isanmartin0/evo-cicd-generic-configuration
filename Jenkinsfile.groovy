@@ -452,7 +452,7 @@ def runGenericJenkinsfile() {
                         branch_type = branchType
                     }
 
-                    sleep(10)k
+                    sleep(10)
                 }
 
                 openshiftBuildProject {
@@ -611,7 +611,7 @@ def runGenericJenkinsfile() {
                 echo "Skipping security tests..."
             }
 
-            node('maven') { //taurus
+            node('taurus') { //taurus
                 checkout scm
                 parallel tasks
             }
