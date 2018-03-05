@@ -617,7 +617,7 @@ def runGenericJenkinsfile() {
             }
 
             if (branchType in params.testing.postdeploy.performanceTesting) {
-                node('maven') { //taurus
+                node('taurus') { //taurus
                     checkout scm
                     stage('Performance Tests') {
                         echo "Running performance tests..."
