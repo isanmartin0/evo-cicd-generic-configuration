@@ -64,3 +64,4 @@ type: slack
 jenkins:
   maxOldBuildsToKeep: 10
   daysOldBuildsToKeep: 0
+  errorOnPerformanceTestsUnstableResult: false
