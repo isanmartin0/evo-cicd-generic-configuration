@@ -17,6 +17,9 @@ spring:
 
 confirmDeploy:
   - master
+timeoutConfirmDeploy: true
+timeoutConfirmDeployTime: 30
+timeoutConfirmDeployUnit: MINUTES
 
 testing:
   predeploy:
