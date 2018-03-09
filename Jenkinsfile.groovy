@@ -713,6 +713,11 @@ def runGenericJenkinsfile() {
             } else {
                 echo "Skipping performance tests..."
             }
+        } else {
+            //User doesn't want to deploy
+            //Failed status
+            currentBuild.result = 'FAILURE'
+            throw new hudson.AbortException("The deploy on Openshift hasn't been confirmed")
         }
 
 
