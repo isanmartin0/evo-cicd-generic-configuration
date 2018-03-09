@@ -297,7 +297,7 @@ def runGenericJenkinsfile() {
 
                 if (!isValidVersion) {
                     //Sufix -SNAPSHOT is required for develop and feature branch types and is forbidden for release,hotfix and master branch types
-                    currentBuild.result = 'FAILURE'
+                    currentBuild.result = Constants.FAILURE_BUILD_RESULT
                     throw new hudson.AbortException('Version of artifact in pom is not allowed for this type of branch')
                 }
 
@@ -422,7 +422,7 @@ def runGenericJenkinsfile() {
                     if (artifactoryResponseCode != null && Constants.HTTP_STATUS_CODE_OK.equals(artifactoryResponseCode)) {
                         echo "Artifact is avalaible for the pipeline on Artifactory"
                     } else {
-                        currentBuild.result = 'FAILURE'
+                        currentBuild.result = Constants.FAILURE_BUILD_RESULT
                         throw new hudson.AbortException('The artifact on Artifactory is not avalaible for the pipeline')
                     }
 
@@ -701,7 +701,7 @@ def runGenericJenkinsfile() {
         } else {
             //User doesn't want to deploy
             //Failed status
-            currentBuild.result = 'FAILURE'
+            currentBuild.result = Constants.FAILURE_BUILD_RESULT
             throw new hudson.AbortException("The deploy on Openshift hasn't been confirmed")
         }
 
@@ -711,7 +711,7 @@ def runGenericJenkinsfile() {
             echo "Sending Notifications..."
 
             /*
-        if (currentBuild.result != 'SUCCESS') {
+        if (!Constants.SUCCESS_BUILD_RESULT.equals(currentBuild.result)) {
             slackSend channel: '#ops-room', color: '#FF0000', message: "The pipeline ${currentBuild.fullDisplayName} has failed."
             hipchatSend (color: 'RED', notify: true, message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             emailext (
