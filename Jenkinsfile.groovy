@@ -564,14 +564,14 @@ def runGenericJenkinsfile() {
             echo "Openshift route hostname: ${openshift_route_hostname}"
             echo "Openshift route hostname (with protocol): ${openshift_route_hostname_with_protocol}"
 
-            echo "params.jenkins.errorOnPerformanceTestsUnstableResult: ${params.jenkins.errorOnPerformanceTestsUnstableResult}"
-            Boolean errorOnPerformanceTestsUnstableResult = false
+            echo "params.jenkins.errorOnPostDeployTestsUnstableResult: ${params.jenkins.errorOnPostDeployTestsUnstableResult}"
+            Boolean errorOnPostDeployTestsUnstableResult = false
 
-            if (params.jenkins.errorOnPerformanceTestsUnstableResult != null) {
-                errorOnPerformanceTestsUnstableResult = params.jenkins.errorOnPerformanceTestsUnstableResult.toBoolean()
+            if (params.jenkins.errorOnPostDeployTestsUnstableResult != null) {
+                errorOnPostDeployTestsUnstableResult = params.jenkins.errorOnPostDeployTestsUnstableResult.toBoolean()
             }
 
-            echo "errorOnPerformanceTestsUnstableResult value: ${errorOnPerformanceTestsUnstableResult}"
+            echo "errorOnPostDeployTestsUnstableResult value: ${errorOnPostDeployTestsUnstableResult}"
 
             def tasks = [:]
 
@@ -591,7 +591,7 @@ def runGenericJenkinsfile() {
                         } catch (exc) {
                             def exc_message = exc.message
                             echo "${exc_message}"
-                            if (errorOnPerformanceTestsUnstableResult) {
+                            if (errorOnPostDeployTestsUnstableResult) {
                                 currentBuild.result = Constants.UNSTABLE_BUILD_RESULT
                             } else {
                                 //Failed status
@@ -621,7 +621,7 @@ def runGenericJenkinsfile() {
                         } catch (exc) {
                             def exc_message = exc.message
                             echo "${exc_message}"
-                            if (errorOnPerformanceTestsUnstableResult) {
+                            if (errorOnPostDeployTestsUnstableResult) {
                                 currentBuild.result = Constants.UNSTABLE_BUILD_RESULT
                             } else {
                                 //Failed status
@@ -651,7 +651,7 @@ def runGenericJenkinsfile() {
                         } catch (exc) {
                             def exc_message = exc.message
                             echo "${exc_message}"
-                            if (errorOnPerformanceTestsUnstableResult) {
+                            if (errorOnPostDeployTestsUnstableResult) {
                                 currentBuild.result = Constants.UNSTABLE_BUILD_RESULT
                             } else {
                                 //Failed status
@@ -685,7 +685,7 @@ def runGenericJenkinsfile() {
                     } catch (exc) {
                         def exc_message = exc.message
                         echo "${exc_message}"
-                        if (errorOnPerformanceTestsUnstableResult) {
+                        if (errorOnPostDeployTestsUnstableResult) {
                             currentBuild.result = Constants.UNSTABLE_BUILD_RESULT
                         } else {
                             //Failed status
