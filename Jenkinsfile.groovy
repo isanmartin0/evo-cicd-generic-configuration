@@ -32,15 +32,18 @@ def runGenericJenkinsfile() {
     def isPPCJenkinsFile = false
     def isPPCJenkinsYaml = false
     def isPPCOpenshiftTemplate = false
+    def isPPCApplicationProperties = false
     def isPPCApplicationDevProperties = false
     def isPPCApplicationUatProperties = false
     def isPPCApplicationProdProperties = false
     def jenkinsFilePathPPC = relativeTargetDirPPC + 'Jenkinsfile'
     def jenkinsYamlPathPPC = relativeTargetDirPPC + 'Jenkins.yml'
     def openshiftTemplatePathPPC = relativeTargetDirPPC + 'kube/template.yaml'
+    def applicationPropertiesPathPPC = relativeTargetDirPPC + 'configuration_profiles/application.properties'
     def applicationDevPropertiesPathPPC = relativeTargetDirPPC + 'configuration_profiles/dev/application-dev.properties'
     def applicationUatPropertiesPathPPC = relativeTargetDirPPC + 'configuration_profiles/uat/application-uat.properties'
     def applicationProdPropertiesPathPPC = relativeTargetDirPPC + 'configuration_profiles/prod/application-prod.properties'
+    def configMapsVolumePersistDefaultPath = '/usr/local/tomcat/conf'
     def jenknsFilePipelinePPC
 
     //Generic project configuration properties
@@ -147,6 +150,15 @@ def runGenericJenkinsfile() {
                     echo "Parallel configuration project Openshift template not found"
                 }
 
+                //application.properties
+                isPPCApplicationProperties = fileExists applicationPropertiesPathPPC
+
+                if (isPPCApplicationProperties) {
+                    echo "Parallel configuration project profile application.properties found"
+                } else {
+                    echo "Parallel configuration project profile application.properties not found"
+                }
+
                 //application-dev.properties
                 isPPCApplicationDevProperties = fileExists applicationDevPropertiesPathPPC
 
@@ -179,6 +191,7 @@ def runGenericJenkinsfile() {
                 echo "isPPCJenkinsFile : ${isPPCJenkinsFile}"
                 echo "isPPCJenkinsYaml : ${isPPCJenkinsYaml}"
                 echo "isPPCOpenshiftTemplate : ${isPPCOpenshiftTemplate}"
+                echo "isPPCApplicationProperties : ${isPPCApplicationProperties}"
                 echo "isPPCApplicationDevProperties : ${isPPCApplicationDevProperties}"
                 echo "isPPCApplicationUatProperties : ${isPPCApplicationUatProperties}"
                 echo "isPPCApplicationProdProperties : ${isPPCApplicationProdProperties}"
@@ -430,6 +443,38 @@ def runGenericJenkinsfile() {
 
             }
 
+
+            //Parameters for creation Config Maps
+            Boolean useConfigurationProfilesFiles = false
+            Boolean persistConfigurationProfilesFiles = false
+            def configMapsVolumePersistPath = ''
+            echo "params.spring.useConfigurationProfilesFiles: ${params.spring.useConfigurationProfilesFiles}"
+            echo "params.spring.persistConfigurationProfilesFiles: ${params.spring.persistConfigurationProfilesFiles}"
+            echo "params.spring.configMapsVolumePersistPath: ${params.spring.configMapsVolumePersistPath}"
+
+            if (params.spring.useConfigurationProfilesFiles) {
+                useConfigurationProfilesFiles = params.spring.useConfigurationProfilesFiles.toBoolean()
+            }
+
+            if (useConfigurationProfilesFiles) {
+                if (params.spring.persistConfigurationProfilesFiles) {
+                    persistConfigurationProfilesFiles = params.spring.persistConfigurationProfilesFiles.toBoolean()
+                }
+
+                if (persistConfigurationProfilesFiles) {
+                    if (params.spring.configMapsVolumePersistPath) {
+                        configMapsVolumePersistPath = params.spring.configMapsVolumePersistPath
+                    } else {
+                        configMapsVolumePersistPath = configMapsVolumePersistDefaultPath
+                    }
+                }
+            }
+
+            echo "useConfigurationProfilesFiles value: ${useConfigurationProfilesFiles}"
+            echo "persistConfigurationProfilesFiles value: ${persistConfigurationProfilesFiles}"
+            echo "configMapsVolumePersistPath value: ${configMapsVolumePersistPath}"
+
+
             stage('OpenShift Build') {
                 echo "Building image on OpenShift..."
 
@@ -445,11 +490,40 @@ def runGenericJenkinsfile() {
                     dockerRegistry = registry
                 }
 
-                retry(10) {
+                boolean configMapPersisted = false
+
+                if (useConfigurationProfilesFiles) {
+                    def configMapCreated = openshiftConfigMapsCreation {
+                        springProfileActive = springProfile
+                        isPPCApplicationPropertiesOpenshift =  isPPCApplicationProperties
+                        isPPCApplicationDevPropertiesOpenshift = isPPCApplicationDevProperties
+                        isPPCApplicationUatPropertiesOpenshift = isPPCApplicationUatProperties
+                        isPPCApplicationProdPropertiesOpenshift = isPPCApplicationProdProperties
+                        applicationPropertiesPathPPCOpenshift = applicationPropertiesPathPPC
+                        applicationDevPropertiesPathPPCOpenshift = applicationDevPropertiesPathPPC
+                        applicationUatPropertiesPathPPCOpenshift = applicationUatPropertiesPathPPC
+                        applicationProdPropertiesPathPPCOpenshift = applicationProdPropertiesPathPPC
+                        branchHY = branchNameHY
+                        branch_type = branchType
+                    }
+
+                    if (configMapCreated && persistConfigurationProfilesFiles) {
+                        configMapPersisted = openshiftConfigMapsPersistence {
+                            configMapsVolumePersistPathOpenshift = configMapsVolumePersistPath
+                            branchHY = branchNameHY
+                            branch_type = branchType
+                        }
+                    }
+
+                }
+
+                retry(3) {
                     openshiftEnvironmentVariables {
                         springProfileActive = springProfile
                         branchHY = branchNameHY
                         branch_type = branchType
+                        configMapPersistedOpenshift = configMapPersisted
+                        configMapsVolumePersistPathOpenshift = configMapsVolumePersistPath
                     }
 
                     sleep(10)
