@@ -126,9 +126,9 @@ def runGenericJenkinsfile() {
                 isPPCJenkinsFile = fileExists jenkinsFilePathPPC
 
                 if (isPPCJenkinsFile) {
-                    echo "Parallel configuration project Jenkinsfile found"
+                    echo "Parallel configuration project Jenkinsfile... FOUND"
                 } else {
-                    echo "Parallel configuration project Jenkinsfile not found"
+                    echo "Parallel configuration project Jenkinsfile... NOT FOUND"
                 }
 
 
@@ -136,45 +136,45 @@ def runGenericJenkinsfile() {
                 isPPCJenkinsYaml = fileExists jenkinsYamlPathPPC
 
                 if (isPPCJenkinsYaml) {
-                    echo "Parallel configuration project Jenkins.yml found"
+                    echo "Parallel configuration project Jenkins.yml... FOUND"
                 } else {
-                    echo "Parallel configuration project Jenkins.yml not found"
+                    echo "Parallel configuration project Jenkins.yml... NOT FOUND"
                 }
 
                 // Openshift template (template.yaml)
                 isPPCOpenshiftTemplate = fileExists openshiftTemplatePathPPC
 
                 if (isPPCOpenshiftTemplate) {
-                    echo "Parallel configuration project Openshift template found"
+                    echo "Parallel configuration project Openshift template... FOUND"
                 } else {
-                    echo "Parallel configuration project Openshift template not found"
+                    echo "Parallel configuration project Openshift template... NOT FOUND"
                 }
 
                 //application.properties
                 isPPCApplicationProperties = fileExists applicationPropertiesPathPPC
 
                 if (isPPCApplicationProperties) {
-                    echo "Parallel configuration project profile application.properties found"
+                    echo "Parallel configuration project profile application.properties... FOUND"
                 } else {
-                    echo "Parallel configuration project profile application.properties not found"
+                    echo "Parallel configuration project profile application.properties... NOT FOUND"
                 }
 
                 //application-dev.properties
                 isPPCApplicationDevProperties = fileExists applicationDevPropertiesPathPPC
 
                 if (isPPCApplicationDevProperties) {
-                    echo "Parallel configuration project profile application-dev.properties found"
+                    echo "Parallel configuration project profile application-dev.properties... FOUND"
                 } else {
-                    echo "Parallel configuration project profile application-dev.properties not found"
+                    echo "Parallel configuration project profile application-dev.properties... NOT FOUND"
                 }
 
                 //application-uat.properties
                 isPPCApplicationUatProperties = fileExists applicationUatPropertiesPathPPC
 
                 if (isPPCApplicationUatProperties) {
-                    echo "Parallel configuration project profile application-uat.properties found"
+                    echo "Parallel configuration project profile application-uat.properties... FOUND"
                 } else {
-                    echo "Parallel configuration project profile application-uat.properties not found"
+                    echo "Parallel configuration project profile application-uat.properties... NOT FOUND"
                 }
 
 
@@ -182,9 +182,9 @@ def runGenericJenkinsfile() {
                 isPPCApplicationProdProperties = fileExists applicationProdPropertiesPathPPC
 
                 if (isPPCApplicationProdProperties) {
-                    echo "Parallel configuration project profile application-prod.properties found"
+                    echo "Parallel configuration project profile application-prod.properties... FOUND"
                 } else {
-                    echo "Parallel configuration project profile application-prod.properties not found"
+                    echo "Parallel configuration project profile application-prod.properties... NOT FOUND"
                 }
 
 
