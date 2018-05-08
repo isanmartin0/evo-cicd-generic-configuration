@@ -573,10 +573,16 @@ def runGenericJenkinsfile() {
                  ************* APPDYNAMICS CONFIG MAP CREATION *****************
                  ***************************************************************/
 
-                echo "creationAppDynamicsConfigMap value: ${creationAppDynamicsConfigMap}"
-
                 boolean appDynamicsConfigMapCreated = false
                 boolean appDynamicsConfigMapPersisted = false
+
+                echo "params.appDynamics.creationAppDynamicsConfigMap: ${params.appDynamics.creationAppDynamicsConfigMap}"
+
+                if (params.appDynamics.creationAppDynamicsConfigMap) {
+                    creationAppDynamicsConfigMap = params.appDynamics.creationAppDynamicsConfigMap.toBoolean()
+                }
+
+                echo "creationAppDynamicsConfigMap value: ${creationAppDynamicsConfigMap}"
 
                 if (creationAppDynamicsConfigMap && (branchType == 'release' || branchType == 'hotfix' || branchType == 'master') && (branchType in params.appDynamics.branch)) {
                     //Only the release,hotfix and master branch types can have Appdynamics agent (if the pipeline configuration parameters allow it)
