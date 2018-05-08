@@ -590,12 +590,6 @@ def runGenericJenkinsfile() {
                     def appDynamicsConfigMapsVolumePersistPath = ''
                     echo "params.appDynamics.appDynamicsConfigMapsVolumePersistPath: ${params.appDynamics.appDynamicsConfigMapsVolumePersistPath}"
 
-                    //The appdynamics template is provided by parallel project configuration (PPC)
-                    params.appDynamics.appDynamicsTemplatePath = relativeTargetDirPPC + params.appDynamics.appDynamicsTemplatePath
-                    echo "Appdynamics template provided by parallel project configuration (PPC)"
-
-                    assert params.appDynamics.appDynamicsTemplatePath?.trim()
-
                     if (params.appDynamics.appDynamicsConfigMapsVolumePersistPath) {
                         appDynamicsConfigMapsVolumePersistPath = params.appDynamics.appDynamicsConfigMapsVolumePersistPath
                     } else {
