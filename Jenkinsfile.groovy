@@ -74,6 +74,13 @@ def runGenericJenkinsfile() {
     def openshift_route_hostname = ''
     def openshift_route_hostname_with_protocol = ''
 
+    //AppDynamics parameters
+    Boolean creationAppDynamicsConfigMap = false
+    def isPPCAppDynamicsTemplate = false
+    def appDynamicsTemplatePath = relativeTargetDirGenericPGC + 'appDynamics/appDynamics_template.yaml'
+    def appDynamicsTemplatePathPPC = relativeTargetDirPPC + 'appDynamics/appDynamics_template.yaml'
+    def appDynamicsConfigMapsVolumePersistDefaultPath = '/opt/appdynamics/conf'
+
     echo "BEGIN GENERIC CONFIGURATION PROJECT (PGC)"
 
     node('maven') {
@@ -188,6 +195,16 @@ def runGenericJenkinsfile() {
                 }
 
 
+                //appDynamics template
+                isPPCAppDynamicsTemplate = fileExists appDynamicsTemplatePathPPC
+
+                if (isPPCAppDynamicsTemplate) {
+                    echo "Parallel configuration project AppDynamics template... FOUND"
+                } else {
+                    echo "Parallel configuration project AppDynamics template... NOT FOUND"
+                }
+
+
                 echo "isPPCJenkinsFile : ${isPPCJenkinsFile}"
                 echo "isPPCJenkinsYaml : ${isPPCJenkinsYaml}"
                 echo "isPPCOpenshiftTemplate : ${isPPCOpenshiftTemplate}"
@@ -195,6 +212,7 @@ def runGenericJenkinsfile() {
                 echo "isPPCApplicationDevProperties : ${isPPCApplicationDevProperties}"
                 echo "isPPCApplicationUatProperties : ${isPPCApplicationUatProperties}"
                 echo "isPPCApplicationProdProperties : ${isPPCApplicationProdProperties}"
+                echo "isPPCAppDynamicsTemplate : ${isPPCAppDynamicsTemplate}"
 
             }
             catch (exc) {
@@ -227,8 +245,8 @@ def runGenericJenkinsfile() {
 
             stage('Load pipeline configuration') {
 
-                if (isPPCJenkinsYaml && isPPCOpenshiftTemplate) {
-                    //The generic pipeline will use Jenkins.yml and template of the parallel project configuration
+                if (isPPCJenkinsYaml && isPPCOpenshiftTemplate && isPPCAppDynamicsTemplate) {
+                    //The generic pipeline will use Jenkins.yml, Openshift template and AppDynamics template of the parallel project configuration
 
                     //Take parameters of the parallel project configuration (PPC)
                     params = readYaml  file: jenkinsYamlPathPPC
@@ -241,6 +259,14 @@ def runGenericJenkinsfile() {
                     assert params.openshift.templatePath?.trim()
 
                     echo "params.openshift.templatePath: ${params.openshift.templatePath}"
+
+                    //The AppDynamics template is provided by parallel project configuration (PPC)
+                    params.appDynamics.appDynamicsTemplatePath = relativeTargetDirPPC + params.appDynamics.appDynamicsTemplatePath
+                    echo "AppDynamics template provided by parallel project configuration (PPC)"
+
+                    assert params.appDynamics.appDynamicsTemplatePath?.trim()
+
+                    echo "params.appDynamics.appDynamicsTemplatePath: ${params.appDynamics.appDynamicsTemplatePath}"
 
                 } else {
                     //The generic pipeline will use generic Jenkins.yml or generic Openshift template
@@ -285,6 +311,16 @@ def runGenericJenkinsfile() {
                     assert params.openshift.templatePath?.trim()
 
                     echo "params.openshift.templatePath: ${params.openshift.templatePath}"
+
+                    if (isPPCAppDynamicsTemplate) {
+                        //The AppDynamics template is provided by parallel project configuration (PPC)
+                        params.appDynamics.appDynamicsTemplatePath = relativeTargetDirPPC + params.appDynamics.appDynamicsTemplatePath
+                        echo "AppDynamics template provided by parallel project configuration (PPC)"
+                    } else {
+                        //The tamplate is provided by generic configuration
+                        params.appDynamics.appDynamicsTemplatePath = relativeTargetDirGenericPGC + params.appDynamics.appDynamicsTemplatePath
+                        echo "Appdynamics template provided by generic configuration project"
+                    }
                 }
 
             }
@@ -443,6 +479,9 @@ def runGenericJenkinsfile() {
 
             }
 
+            /**************************************************************************
+             ************* APPLICATION CONFIG MAP CREATION PARAMETERS *****************
+             **************************************************************************/
 
             //Parameters for creation Config Maps
             Boolean useConfigurationProfilesFiles = false
@@ -476,6 +515,11 @@ def runGenericJenkinsfile() {
 
 
             stage('OpenShift Build') {
+
+                /**********************************************************
+                 ************* OPENSHIFT PROJECT CREATION *****************
+                 **********************************************************/
+
                 echo "Building image on OpenShift..."
 
                 openshiftCheckAndCreateProject {
@@ -489,6 +533,10 @@ def runGenericJenkinsfile() {
                     branch_type = branchType
                     dockerRegistry = registry
                 }
+
+                /***************************************************************
+                 ************* APPLICATION CONFIG MAP CREATION *****************
+                 ***************************************************************/
 
                 boolean configMapPersisted = false
 
@@ -517,6 +565,149 @@ def runGenericJenkinsfile() {
 
                 }
 
+                /***************************************************************
+                 ************* APPDYNAMICS CONFIG MAP CREATION *****************
+                 ***************************************************************/
+
+                echo "creationAppDynamicsConfigMap value: ${creationAppDynamicsConfigMap}"
+
+                boolean appDynamicsConfigMapCreated = false
+                boolean appDynamicsConfigMapPersisted = false
+
+                if (creationAppDynamicsConfigMap && (branchType == 'release' || branchType == 'hotfix' || branchType == 'master') && (branchType in params.appDynamics.branch)) {
+                    //Only the release,hotfix and master branch types can have Appdynamics agent (if the pipeline configuration parameters allow it)
+
+                    def appDynamicsConfigMapsVolumePersistPath = ''
+                    echo "params.appDynamics.appDynamicsConfigMapsVolumePersistPath: ${params.appDynamics.appDynamicsConfigMapsVolumePersistPath}"
+
+                    //The appdynamics template is provided by parallel project configuration (PPC)
+                    params.appDynamics.appDynamicsTemplatePath = relativeTargetDirPPC + params.appDynamics.appDynamicsTemplatePath
+                    echo "Appdynamics template provided by parallel project configuration (PPC)"
+
+                    assert params.appDynamics.appDynamicsTemplatePath?.trim()
+
+                    if (params.appDynamics.appDynamicsConfigMapsVolumePersistPath) {
+                        appDynamicsConfigMapsVolumePersistPath = params.appDynamics.appDynamicsConfigMapsVolumePersistPath
+                    } else {
+                        appDynamicsConfigMapsVolumePersistPath = appDynamicsConfigMapsVolumePersistDefaultPath
+                    }
+
+                    echo "params.appDynamics.appDynamicsTemplatePath: ${params.appDynamics.appDynamicsTemplatePath}"
+                    echo "appDynamicsConfigMapsVolumePersistPath value: ${appDynamicsConfigMapsVolumePersistPath}"
+                    echo "params.appDynamics.javaOpts: ${params.appDynamics.javaOpts}"
+
+                    if (branchType == 'release' || branchType == 'hotfix') {
+
+
+                        echo "params.appDynamics.controllerHostnameUAT: ${params.appDynamics.controllerHostnameUAT}"
+                        echo "params.appDynamics.controllerPortUAT: ${params.appDynamics.controllerPortUAT}"
+                        echo "params.appDynamics.controllerSSLEnabledUAT: ${params.appDynamics.controllerSSLEnabledUAT}"
+                        echo "params.appDynamics.agentApplicationNamePrefix: ${params.appDynamics.agentApplicationNamePrefix}"
+                        echo "params.appDynamics.agentApplicationNameSufix: ${params.appDynamics.agentApplicationNameSufix}"
+                        echo "params.appDynamics.agentTierNamePrefix: ${params.appDynamics.agentTierNamePrefix}"
+                        echo "params.appDynamics.agentTierNameSufix: ${params.appDynamics.agentTierNameSufix}"
+                        echo "params.appDynamics.agentAccountName: ${params.appDynamics.agentAccountName}"
+                        echo "params.appDynamics.agentAccountAccessKeyUAT: ${params.appDynamics.agentAccountAccessKeyUAT}"
+
+                        Boolean controllerSSLEnabled = false
+
+                        if (params.appDynamics.controllerSSLEnabledUAT) {
+                            controllerSSLEnabled = params.appDynamics.controllerSSLEnabledUAT.toBoolean()
+                        }
+
+                        //Detect existence and show parameters of agent for UAT environment
+                        if (!params.appDynamics.controllerHostnameUAT || !params.appDynamics.controllerPortUAT ||
+                                !params.appDynamics.agentAccountName || !params.appDynamics.agentAccountAccessKeyUAT || !params.appDynamics.appDynamicsTemplatePath) {
+                            currentBuild.result = Constants.FAILURE_BUILD_RESULT
+                            throw new hudson.AbortException('There are mandatory AppDynamics parameters without value for UAT environment. The mandatory parameters are: controllerHostnameUAT, controllerPortUAT, agentAccountNameUAT, agentAccountAccessKeyUAT and appDynamicsTemplatePath')
+                        }
+
+                        appDynamicsConfigMapCreated = openshiftAppDynamicsConfigMapsCreation {
+                            appDynamicsTemplate = params.appDynamics.appDynamicsTemplatePath
+                            appDynamics_controller_hostname = params.appDynamics.controllerHostnameUAT
+                            appDynamics_controller_port = params.appDynamics.controllerPortUAT
+                            appDynamics_controller_ssl_enabled = controllerSSLEnabled
+                            appDynamics_agent_application_name_prefix = params.appDynamics.agentApplicationNamePrefix
+                            appDynamics_agent_application_name_sufix = params.appDynamics.agentApplicationNameSufix
+                            appDynamics_agent_tier_name_prefix = params.appDynamics.agentTierNamePrefix
+                            appDynamics_agent_tier_name_sufix = params.appDynamics.agentTierNameSufix
+                            appDynamics_agent_account_name = params.appDynamics.agentAccountName
+                            appDynamics_agent_account_access_key = params.appDynamics.agentAccountAccessKeyUAT
+                            branchHY = branchNameHY
+                            branch_type = branchType
+                        }
+
+                    } else if (branchType == 'master') {
+
+                        echo "params.appDynamics.controllerHostnamePRO: ${params.appDynamics.controllerHostnamePRO}"
+                        echo "params.appDynamics.controllerPortPRO: ${params.appDynamics.controllerPortPRO}"
+                        echo "params.appDynamics.controllerSSLEnabledPRO: ${params.appDynamics.controllerSSLEnabledPRO}"
+                        echo "params.appDynamics.agentApplicationNamePrefix: ${params.appDynamics.agentApplicationNamePrefix}"
+                        echo "params.appDynamics.agentApplicationNameSufix: ${params.appDynamics.agentApplicationNameSufix}"
+                        echo "params.appDynamics.agentTierNamePrefix: ${params.appDynamics.agentTierNamePrefix}"
+                        echo "params.appDynamics.agentTierNameSufix: ${params.appDynamics.agentTierNameSufix}"
+                        echo "params.appDynamics.agentAccountName: ${params.appDynamics.agentAccountName}"
+                        echo "params.appDynamics.agentAccountAccessKeyPRO: ${params.appDynamics.agentAccountAccessKeyPRO}"
+
+                        Boolean controllerSSLEnabled = false
+
+                        if (params.appDynamics.controllerSSLEnabledPRO) {
+                            controllerSSLEnabled = params.appDynamics.controllerSSLEnabledPRO.toBoolean()
+                        }
+
+                        //Detect existence and show parameters of agent for PRO environment
+                        if (!params.appDynamics.controllerHostnamePRO || !params.appDynamics.controllerPortPRO ||
+                                !params.appDynamics.agentAccountName || !params.appDynamics.agentAccountAccessKeyPRO || !params.appDynamics.appDynamicsTemplatePath) {
+                            currentBuild.result = Constants.FAILURE_BUILD_RESULT
+                            throw new hudson.AbortException('There are mandatory AppDynamics parameters without value for PRO environment. The mandatory parameters are: controllerHostnamePRO, controllerPortPRO, agentAccountNamePRO, agentAccountAccessKeyPRO and appDynamicsTemplatePath')
+                        }
+
+
+                        appDynamicsConfigMapCreated = openshiftAppDynamicsConfigMapsCreation {
+                            appDynamicsTemplate = params.appDynamics.appDynamicsTemplatePath
+                            appDynamics_controller_hostname = params.appDynamics.controllerHostnamePRO
+                            appDynamics_controller_port = params.appDynamics.controllerPortPRO
+                            appDynamics_controller_ssl_enabled = controllerSSLEnabled
+                            appDynamics_agent_application_name_prefix = params.appDynamics.agentApplicationNamePrefix
+                            appDynamics_agent_application_name_sufix = params.appDynamics.agentApplicationNameSufix
+                            appDynamics_agent_tier_name_prefix = params.appDynamics.agentTierNamePrefix
+                            appDynamics_agent_tier_name_sufix = params.appDynamics.agentTierNameSufix
+                            appDynamics_agent_account_name = params.appDynamics.agentAccountName
+                            appDynamics_agent_account_access_key = params.appDynamics.agentAccountAccessKeyPRO
+                            branchHY = branchNameHY
+                            branch_type = branchType
+                        }
+
+                    }
+
+                    //Persistence of the Appdynamics config map created
+                    if (appDynamicsConfigMapCreated) {
+
+                        echo "The AppDynamics config map has been created"
+                        appDynamicsConfigMapPersisted = openshiftAppDynamicsConfigMapsPersistence {
+                            appDynamicsConfigMapsVolumePersistPathOpenshift = appDynamicsConfigMapsVolumePersistPath
+                            branchHY = branchNameHY
+                            branch_type = branchType
+                        }
+
+                        if (appDynamicsConfigMapPersisted) {
+                            echo "The persistence of AppDynamics config map has been done in ${appDynamicsConfigMapsVolumePersistPath}"
+                        } else {
+                            echo "WARNING. The AppDynamics config map hasn't been persisted. Maybe there was a prevously persistence of the config map"
+                        }
+
+                    } else {
+                        currentBuild.result = Constants.FAILURE_BUILD_RESULT
+                        throw new hudson.AbortException('There is a problem with the creation of the AppDynamics config map')
+                    }
+
+                }
+
+
+                /**************************************************************
+                 ************* ENVIRONMENT VARIABLES CREATION *****************
+                 **************************************************************/
+
                 retry(3) {
                     openshiftEnvironmentVariables {
                         springProfileActive = springProfile
@@ -524,6 +715,10 @@ def runGenericJenkinsfile() {
                         branch_type = branchType
                         configMapPersistedOpenshift = configMapPersisted
                         configMapsVolumePersistPathOpenshift = configMapsVolumePersistPath
+                        appDynamicsConfigMapCreatedOpenshift = appDynamicsConfigMapCreated
+                        appDynamicsJavaOpts = params.appDynamics.javaOpts
+                        appDynamicsAgentReuseNodeNamePrefix =  params.appDynamics.agentReuseNodeNamePrefix
+                        appDynamicsAgentReuseNodeNameSufix =  params.appDynamics.agentReuseNodeNameSufix
                     }
 
                     sleep(10)

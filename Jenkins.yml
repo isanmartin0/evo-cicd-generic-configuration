@@ -68,3 +68,27 @@ jenkins:
   maxOldBuildsToKeep: 10
   daysOldBuildsToKeep: 0
   errorOnPostDeployTestsUnstableResult: true
+
+appDynamics:
+  creationAppDynamicsConfigMap: true
+  branch:
+    - release
+    - master
+  appDynamicsTemplatePath: appDynamics/appDynamics_template.yaml
+  appDynamicsConfigMapsVolumePersistPath: /opt/appdynamics/conf
+  controllerHostnameUAT: 10.85.150.11
+  controllerPortUAT: 8090
+  controllerSSLEnabledUAT: false
+  agentAccountAccessKeyUAT: 5ab3c79b-ca62-45ba-8ebf-b530f0ec7f0d
+  controllerHostnamePRO: sg01wpmtf01.grupoevo.corp
+  controllerPortPRO: 2443
+  controllerSSLEnabledPRO: true
+  agentAccountAccessKeyPRO: d39876ee-8bc8-4923-bb7e-b976e5116fa2
+  agentApplicationNamePrefix: ev-
+  agentApplicationNameSufix: -srv
+  agentTierNamePrefix: ev-
+  agentTierNameSufix: -srv
+  agentAccountName: customer1
+  javaOpts: -javaagent:/opt/appdynamics/javaagent.jar -Dappdynamics.agent.logs.dir=/deployments/logs -Dappdynamics.agent.reuse.nodeName=true -Dappdynamics.agent.reuse.nodeName.prefix=[APPDYNAMICS_AGENT_REUSE_NODE_NAME_PREFIX] -Xbootclasspath/p:/wildfly/modules/system/layers/base/org/jboss/log4j/logmanager/main/log4j-jboss-logmanager-1.0.2.Final-redhat-1.jar -Djboss.modules.system.pkgs=org.jboss.byteman,com.appdynamics,com.appdynamics.,com.singularity,com.singularity.
+  agentReuseNodeNamePrefix: ev-
+  agentReuseNodeNameSufix: -srv

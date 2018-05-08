@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ${PROJECT}
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ${PROJECT}
+    name: ${APPDYNAMICS_CONFIG_MAP_NAME}
+  data:
+    agent.properties: |-
+      appdynamics.controller.hostName=${APPDYNAMICS_CONTROLLER_HOSTNAME}
+      appdynamics.controller.port=${APPDYNAMICS_CONTROLLER_PORT}
+      appdynamics.controller.ssl.enabled=${APPDYNAMICS_CONTROLLER_SSL_ENABLED}
+      appdynamics.agent.applicationName=${APPDYNAMICS_AGENT_APPLICATION_NAME}
+      appdynamics.agent.tierName=${APPDYNAMICS_AGENT_TIER_NAME}
+      appdynamics.agent.accountName=${APPDYNAMICS_AGENT_ACCOUNT_NAME}
+      appdynamics.agent.accountAccessKey=${APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY}
+parameters:
+- description: "Project name"
+  name: "PROJECT"
+  value: ""
+- description: "AppDynamics Config Map name"
+  name: "APPDYNAMICS_CONFIG_MAP_NAME"
+  value: ""
+- description: "AppDynamics Controller Hostname"
+  name: "APPDYNAMICS_CONTROLLER_HOSTNAME"
+  value: ""
+- description: "AppDynamics Controller Port"
+  name: "APPDYNAMICS_CONTROLLER_PORT"
+  value: ""
+- description: "AppDynamics Controller SSL Enabled"
+  name: "APPDYNAMICS_CONTROLLER_SSL_ENABLED"
+  value: "false"
+- description: "AppDynamics Agent Application Name"
+  name: "APPDYNAMICS_AGENT_APPLICATION_NAME"
+  value: ""
+- description: "AppDynamics Agent Tier Name"
+  name: "APPDYNAMICS_AGENT_TIER_NAME"
+  value: ""
+- description: "AppDynamics Agent Account Name"
+  name: "APPDYNAMICS_AGENT_ACCOUNT_NAME"
+  value: ""
+- description: "AppDynamics Agent Account Access Key"
+  name: "APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY"
+  value: ""
