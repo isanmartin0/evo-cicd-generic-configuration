@@ -321,6 +321,10 @@ def runGenericJenkinsfile() {
                         params.appDynamics.appDynamicsTemplatePath = relativeTargetDirGenericPGC + params.appDynamics.appDynamicsTemplatePath
                         echo "Appdynamics template provided by generic configuration project"
                     }
+
+                    assert params.appDynamics.appDynamicsTemplatePath?.trim()
+
+                    echo "params.appDynamics.appDynamicsTemplatePath: ${params.appDynamics.appDynamicsTemplatePath}"
                 }
 
             }
