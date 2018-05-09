@@ -73,6 +73,7 @@ appDynamics:
   creationAppDynamicsConfigMap: true
   branch:
     - release
+    - hotfix
     - master
   appDynamicsTemplatePath: appDynamics/appDynamics_template.yaml
   appDynamicsConfigMapsVolumePersistPath: /opt/appdynamics/conf
